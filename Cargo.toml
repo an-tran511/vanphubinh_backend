@@ -4,11 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [workspace]
-members = ["infra", "server", "migration"]
+members = ["infra", "server", "migration", "domain"]
 
 [workspace.dependencies]
 async-trait = "0.1.83"
 axum = "0.7.9"
+chrono = "0.4.38"
 discern = "0.1.0"
 dotenvy = "0.15.7"
 sea-orm = { version = "1.1.1", features = [
