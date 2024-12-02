@@ -27,7 +27,7 @@ pub async fn start() {
   };
 
   tracing::info!("Connecting to write database");
-  let _write_db = match database::connect_db(&std::env::var("WRITE_DATABASE_URL").unwrap()).await {
+  let _write_db = match database::connect_db(&std::env::var("DATABASE_URL").unwrap()).await {
     Ok(db) => {
       tracing::info!("Connected to write database");
       Arc::new(db)

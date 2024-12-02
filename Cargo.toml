@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [workspace]
-members = ["infra", "server"]
+members = ["infra", "server", "migration"]
 
 [workspace.dependencies]
 async-trait = "0.1.83"
@@ -16,10 +16,18 @@ sea-orm = { version = "1.1.1", features = [
   "runtime-tokio-native-tls",
   "macros",
 ] }
+serde = { version = "1.0.215", features = ["derive"] }
+serde_json = "1.0.133"
+short-uuid = "0.1.4"
 tokio = { version = "1.41.1", features = ["full"] }
 tower-http = { version = "0.6.2", features = ["full"] }
 tracing = "0.1.41"
 tracing-subscriber = "0.3.19"
+uuid = { version = "1.11.0", features = [
+  "v7",
+  "fast-rng",
+  "macro-diagnostics",
+] }
 
 [dependencies]
 server = { path = "server" }
