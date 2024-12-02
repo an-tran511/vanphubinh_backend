@@ -4,10 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [workspace]
-members = ["infra", "server", "migration", "domain"]
+members = ["infra", "server", "migration", "domain", "service", "interface"]
 
 [workspace.dependencies]
-async-trait = "0.1.83"
 axum = "0.7.9"
 chrono = "0.4.38"
 discern = "0.1.0"
@@ -20,6 +19,7 @@ sea-orm = { version = "1.1.1", features = [
 serde = { version = "1.0.215", features = ["derive"] }
 serde_json = "1.0.133"
 short-uuid = "0.1.4"
+thiserror = "2.0.3"
 tokio = { version = "1.41.1", features = ["full"] }
 tower-http = { version = "0.6.2", features = ["full"] }
 tracing = "0.1.41"

@@ -3,7 +3,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use short_uuid::ShortUuid;
 use uuid::Uuid as OriginalUuid;
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Copy)]
 pub struct Uuid(OriginalUuid);
 
 impl<'de> Deserialize<'de> for Uuid {

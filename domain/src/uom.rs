@@ -6,7 +6,7 @@ use infra::uuid::Uuid;
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Deserialize, Serialize)]
 #[sea_orm(table_name = "uom")]
 #[serde(rename_all = "camelCase")]
 pub struct Model {
@@ -45,4 +45,11 @@ impl ActiveModelBehavior for ActiveModel {
     }
     Ok(this)
   }
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UomDTO {
+  pub id: Uuid,
+  pub name: String,
 }

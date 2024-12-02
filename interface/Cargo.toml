@@ -1,0 +1,12 @@
+[package]
+name = "interface"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = { workspace = true }
+discern = { workspace = true }
+sea-orm = { workspace = true }
+
+infra = { path = "../infra" }
+service = { path = "../service" }

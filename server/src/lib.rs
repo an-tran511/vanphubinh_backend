@@ -1,5 +1,6 @@
 use axum::Router;
-use infra::database;
+use infra::{database, state::AppState};
+use interface::{command_bus, query_bus, uom};
 use std::{net::SocketAddr, sync::Arc};
 use tokio::net::TcpListener;
 use tower_http::trace::{self, TraceLayer};
@@ -38,9 +39,21 @@ pub async fn start() {
     }
   };
 
-  let router = Router::new().layer(
-    TraceLayer::new_for_http().make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO)),
-  );
+  let query_bus = query_bus::new(_read_db);
+
+  let command_bus = command_bus::new(_write_db);
+
+  let app_state = Arc::new(AppState {
+    query_bus,
+    command_bus,
+  });
+
+  let router = Router::new()
+    .merge(uom::route::new())
+    .with_state(app_state.clone())
+    .layer(
+      TraceLayer::new_for_http().make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO)),
+    );
 
   let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
   let tcp = TcpListener::bind(&addr).await.unwrap();
