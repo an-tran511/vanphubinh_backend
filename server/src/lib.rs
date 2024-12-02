@@ -14,13 +14,24 @@ pub async fn start() {
     .with_test_writer()
     .init();
 
-  let _db = match connect_db().await {
+  let _read_db = match connect_read_db().await {
     Ok(db) => {
-      tracing::info!("Connected to database");
+      tracing::info!("Connected to read database");
       Arc::new(db)
     }
     Err(_) => {
-      tracing::error!("Failed to connect to database");
+      tracing::error!("Failed to connect to read database");
+      std::process::exit(1);
+    }
+  };
+
+  let _write_db = match connect_write_db().await {
+    Ok(db) => {
+      tracing::info!("Connected to write database");
+      Arc::new(db)
+    }
+    Err(_) => {
+      tracing::error!("Failed to connect to write database");
       std::process::exit(1);
     }
   };
@@ -36,8 +47,14 @@ pub async fn start() {
   axum::serve(tcp, router).await.unwrap();
 }
 
-pub async fn connect_db() -> Result<DatabaseConnection, Box<dyn Error>> {
-  tracing::info!("Connecting to database");
-  let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+pub async fn connect_read_db() -> Result<DatabaseConnection, Box<dyn Error>> {
+  tracing::info!("Connecting to read database");
+  let db_url = std::env::var("READ_DATABASE_URL").expect("READ_DATABASE_URL must be set");
+  Ok(Database::connect(&db_url).await?)
+}
+
+pub async fn connect_write_db() -> Result<DatabaseConnection, Box<dyn Error>> {
+  tracing::info!("Connecting to write database");
+  let db_url = std::env::var("WRITE_DATABASE_URL").expect("WRITE_DATABASE_URL must be set");
   Ok(Database::connect(&db_url).await?)
 }
