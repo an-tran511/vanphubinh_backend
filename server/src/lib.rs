@@ -1,6 +1,6 @@
 use axum::Router;
-use sea_orm::{Database, DatabaseConnection};
-use std::{error::Error, net::SocketAddr, sync::Arc};
+use infra::database;
+use std::{net::SocketAddr, sync::Arc};
 use tokio::net::TcpListener;
 use tower_http::trace::{self, TraceLayer};
 use tracing::Level;
@@ -14,7 +14,8 @@ pub async fn start() {
     .with_test_writer()
     .init();
 
-  let _read_db = match connect_read_db().await {
+  tracing::info!("Connecting to read database");
+  let _read_db = match database::connect_db(&std::env::var("READ_DATABASE_URL").unwrap()).await {
     Ok(db) => {
       tracing::info!("Connected to read database");
       Arc::new(db)
@@ -25,7 +26,8 @@ pub async fn start() {
     }
   };
 
-  let _write_db = match connect_write_db().await {
+  tracing::info!("Connecting to write database");
+  let _write_db = match database::connect_db(&std::env::var("WRITE_DATABASE_URL").unwrap()).await {
     Ok(db) => {
       tracing::info!("Connected to write database");
       Arc::new(db)
@@ -45,16 +47,4 @@ pub async fn start() {
 
   tracing::debug!("Listening on http://{}", addr);
   axum::serve(tcp, router).await.unwrap();
-}
-
-pub async fn connect_read_db() -> Result<DatabaseConnection, Box<dyn Error>> {
-  tracing::info!("Connecting to read database");
-  let db_url = std::env::var("READ_DATABASE_URL").expect("READ_DATABASE_URL must be set");
-  Ok(Database::connect(&db_url).await?)
-}
-
-pub async fn connect_write_db() -> Result<DatabaseConnection, Box<dyn Error>> {
-  tracing::info!("Connecting to write database");
-  let db_url = std::env::var("WRITE_DATABASE_URL").expect("WRITE_DATABASE_URL must be set");
-  Ok(Database::connect(&db_url).await?)
 }

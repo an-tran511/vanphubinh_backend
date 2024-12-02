@@ -6,3 +6,5 @@ edition = "2021"
 [dependencies]
 async-trait = { workspace = true }
 discern = { workspace = true }
+sea-orm = { workspace = true }
+tracing = { workspace = true }
