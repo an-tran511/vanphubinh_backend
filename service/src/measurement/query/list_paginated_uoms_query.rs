@@ -9,7 +9,7 @@ use discern::query::QueryHandler;
 use domain::uom::Model as UomDTO;
 use domain::uom::{Column, Entity as Uom};
 use infra::util::PaginationMeta;
-use sea_orm::{DatabaseConnection, DbErr, EntityTrait, PaginatorTrait, SelectColumns};
+use sea_orm::{DatabaseConnection, DbErr, EntityTrait, PaginatorTrait, QuerySelect};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use thiserror::Error;
@@ -70,8 +70,9 @@ impl QueryHandler<ListUomsQuery> for ListUomsQueryHandler {
     let page = query.page.unwrap_or(1) - 1;
 
     let uom_pages = Uom::find()
-      .select_column(Column::Id)
-      .select_column(Column::Name)
+      .select_only()
+      .column(Column::Id)
+      .column(Column::Name)
       .paginate(self.db.as_ref(), per_page);
     let uoms = uom_pages.fetch_page(page).await?;
     let items_and_pages = uom_pages.num_items_and_pages().await?;
