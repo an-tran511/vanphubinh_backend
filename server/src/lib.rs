@@ -16,7 +16,7 @@ pub async fn start() {
     .init();
 
   tracing::info!("Connecting to read database");
-  let _read_db = match database::connect_db(&std::env::var("READ_DATABASE_URL").unwrap()).await {
+  let read_db = match database::connect_db(&std::env::var("READ_DATABASE_URL").unwrap()).await {
     Ok(db) => {
       tracing::info!("Connected to read database");
       Arc::new(db)
@@ -28,7 +28,7 @@ pub async fn start() {
   };
 
   tracing::info!("Connecting to write database");
-  let _write_db = match database::connect_db(&std::env::var("DATABASE_URL").unwrap()).await {
+  let write_db = match database::connect_db(&std::env::var("DATABASE_URL").unwrap()).await {
     Ok(db) => {
       tracing::info!("Connected to write database");
       Arc::new(db)
@@ -39,9 +39,9 @@ pub async fn start() {
     }
   };
 
-  let query_bus = query_bus::new(_read_db);
+  let query_bus = query_bus::new(read_db.clone());
 
-  let command_bus = command_bus::new(_write_db);
+  let command_bus = command_bus::new(write_db.clone());
 
   let app_state = Arc::new(AppState {
     query_bus,
