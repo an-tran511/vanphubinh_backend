@@ -8,10 +8,10 @@ use discern::query::Query;
 use discern::query::QueryHandler;
 use domain::uom::UomDTO;
 use domain::uom::{Column, Entity as Uom};
+use infra::error::ErrorResponse;
 use infra::util::PaginationMeta;
 use sea_orm::{DatabaseConnection, DbErr, EntityTrait, PaginatorTrait, QuerySelect};
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use thiserror::Error;
 
 #[derive(Debug, Deserialize)]
@@ -37,10 +37,11 @@ impl IntoResponse for ListUomsError {
 
     (
       status,
-      Json(json!({
-        "ok": false,
-        "code": code,
-      })),
+      Json(ErrorResponse {
+        ok: false,
+        code,
+        source: Some("list_paginated_uoms_query".to_string()),
+      }),
     )
       .into_response()
   }
@@ -73,10 +74,9 @@ impl QueryHandler<ListUomsQuery> for ListUomsQueryHandler {
       .select_only()
       .column(Column::Id)
       .column(Column::Name)
-      .into_model::<UomDTO>()
+      .into_partial_model::<UomDTO>()
       .paginate(self.db.as_ref(), per_page);
     let uoms = uom_pages.fetch_page(page).await?;
-    println!("Uoms: {:#?}", uoms);
     let items_and_pages = uom_pages.num_items_and_pages().await?;
     let total = items_and_pages.number_of_items;
     let total_pages = items_and_pages.number_of_pages;

@@ -3,10 +3,10 @@
 use async_trait::async_trait;
 use chrono::Utc;
 use infra::uuid::Uuid;
-use sea_orm::{entity::prelude::*, FromQueryResult, Set};
+use sea_orm::{entity::prelude::*, DerivePartialModel, FromQueryResult, Set};
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
 #[sea_orm(table_name = "uom")]
 #[serde(rename_all = "camelCase")]
 pub struct Model {
@@ -47,7 +47,8 @@ impl ActiveModelBehavior for ActiveModel {
   }
 }
 
-#[derive(Debug, Deserialize, Serialize, FromQueryResult)]
+#[derive(Debug, DerivePartialModel, Serialize, FromQueryResult)]
+#[sea_orm(entity = "Entity")]
 #[serde(rename_all = "camelCase")]
 pub struct UomDTO {
   pub id: Uuid,

@@ -4,9 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+anyhow = { workspace = true }
 axum = { workspace = true }
+axum-macros = { workspace = true }
 discern = { workspace = true }
 sea-orm = { workspace = true }
+thiserror = { workspace = true }
 
 infra = { path = "../infra" }
 service = { path = "../service" }

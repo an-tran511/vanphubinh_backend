@@ -7,7 +7,9 @@ edition = "2021"
 members = ["infra", "server", "migration", "domain", "service", "interface"]
 
 [workspace.dependencies]
+anyhow = "1.0.84"
 axum = "0.7.9"
+axum-macros = "0.4.2"
 chrono = "0.4.38"
 discern = "0.1.0"
 dotenvy = "0.15.7"
