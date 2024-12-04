@@ -90,3 +90,9 @@ impl sea_orm::sea_query::ValueType for Uuid {
     sea_orm::sea_query::ColumnType::Uuid
   }
 }
+
+impl sea_orm::sea_query::Nullable for Uuid {
+  fn null() -> sea_orm::Value {
+    sea_orm::Value::Uuid(None)
+  }
+}
