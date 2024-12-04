@@ -1,9 +1,5 @@
-use crate::response::{ErrorResponse, OkResponse};
+use crate::response::ErrorResponse;
 use axum::{response::IntoResponse, Json};
-
-pub fn ok() -> impl IntoResponse {
-  Json(OkResponse { ok: true }).into_response()
-}
 
 pub fn error(code: String, source: Option<String>) -> impl IntoResponse {
   Json(ErrorResponse {

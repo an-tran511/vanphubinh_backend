@@ -8,11 +8,6 @@ pub struct ErrorResponse {
   pub source: Option<String>,
 }
 
-#[derive(Serialize)]
-pub struct OkResponse {
-  pub ok: bool,
-}
-
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PaginationMeta {
