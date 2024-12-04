@@ -8,8 +8,8 @@ use std::sync::Arc;
 
 pub fn new() -> Router<Arc<AppState>> {
   Router::new()
-    .route("/uoms/list", get(list_paginated_uoms))
-    .route("/uoms/create", post(create_uom))
-    .route("/uoms/:id/find", get(find_uom_by_id))
-    .route("/uoms/:id/update", post(update_uom))
+    .route("/uoms.list", get(list_paginated_uoms))
+    .route("/uoms.create", post(create_uom))
+    .route("/uoms.find/:id", get(find_uom_by_id))
+    .route("/uoms.update/:id", post(update_uom))
 }

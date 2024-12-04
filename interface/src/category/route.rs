@@ -4,5 +4,5 @@ use infra::state::AppState;
 use std::sync::Arc;
 
 pub fn new() -> Router<Arc<AppState>> {
-  Router::new().route("/categories/list", get(list_paginated_categories))
+  Router::new().route("/categories.list", get(list_paginated_categories))
 }
