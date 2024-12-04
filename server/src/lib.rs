@@ -1,6 +1,6 @@
 use axum::Router;
 use infra::{database, state::AppState};
-use interface::{command_bus, query_bus, uom};
+use interface::{category, command_bus, query_bus, uom};
 use std::{net::SocketAddr, sync::Arc};
 use tokio::net::TcpListener;
 use tower_http::trace::{self, TraceLayer};
@@ -50,6 +50,7 @@ pub async fn start() {
 
   let router = Router::new()
     .merge(uom::route::new())
+    .merge(category::route::new())
     .with_state(app_state.clone())
     .layer(
       TraceLayer::new_for_http().make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO)),

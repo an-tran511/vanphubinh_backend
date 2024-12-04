@@ -73,5 +73,4 @@ impl ActiveModelBehavior for ActiveModel {
 pub struct CategoryDTO {
   pub id: Uuid,
   pub name: String,
-  pub parent_category_id: Option<Uuid>,
 }
