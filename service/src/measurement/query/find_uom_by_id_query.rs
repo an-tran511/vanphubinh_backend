@@ -1,17 +1,15 @@
-use std::sync::Arc;
-
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use axum::Json;
 use discern::async_trait;
 use discern::query::Query;
 use discern::query::QueryHandler;
-use domain::uom::Entity as Uom;
 use domain::uom::UomDTO;
-use infra::response::ErrorResponse;
+use domain::uom::{Column, Entity as Uom};
+use infra::util::error;
 use infra::uuid::Uuid;
-use sea_orm::{DatabaseConnection, DbErr, EntityTrait};
-use serde::Deserialize;
+use sea_orm::{DatabaseConnection, DbErr, EntityTrait, QuerySelect};
+use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use thiserror::Error;
 
 #[derive(Debug, Deserialize)]
@@ -38,18 +36,19 @@ impl IntoResponse for FindUomByIdError {
     };
     (
       status,
-      Json(ErrorResponse {
-        ok: false,
-        code,
-        source: Some("find_uom_by_id_query".to_string()),
-      }),
+      error(code, Some("find_uom_by_id_query".to_string())),
     )
       .into_response()
   }
 }
 
+#[derive(Debug, Serialize)]
+pub struct FindUomByIdOutput {
+  pub uom: UomDTO,
+}
+
 impl Query for FindUomByIdQuery {
-  type Output = Option<UomDTO>;
+  type Output = UomDTO;
   type Error = FindUomByIdError;
 }
 
@@ -59,13 +58,16 @@ pub struct FindUomByIdQueryHandler {
 
 #[async_trait]
 impl QueryHandler<FindUomByIdQuery> for FindUomByIdQueryHandler {
-  async fn handle(&self, query: FindUomByIdQuery) -> Result<Option<UomDTO>, FindUomByIdError> {
+  async fn handle(&self, query: FindUomByIdQuery) -> Result<UomDTO, FindUomByIdError> {
     let uom = Uom::find_by_id(query.id)
+      .select_only()
+      .column(Column::Id)
+      .column(Column::Name)
       .into_partial_model::<UomDTO>()
       .one(self.db.as_ref())
       .await;
     match uom {
-      Ok(Some(uom)) => Ok(Some(uom)),
+      Ok(Some(uom)) => Ok(uom),
       Ok(None) => Err(FindUomByIdError::NotFound),
       Err(e) => Err(FindUomByIdError::InternalServerError(e)),
     }

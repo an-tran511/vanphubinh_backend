@@ -2,14 +2,12 @@ use std::sync::Arc;
 
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use axum::Json;
 use discern::async_trait;
 use discern::query::Query;
 use discern::query::QueryHandler;
 use domain::uom::UomDTO;
 use domain::uom::{Column, Entity as Uom};
-use infra::response::ErrorResponse;
-use infra::util::PaginationMeta;
+use infra::util::{error, PaginationMeta};
 use sea_orm::{DatabaseConnection, DbErr, EntityTrait, PaginatorTrait, QuerySelect};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -37,25 +35,21 @@ impl IntoResponse for ListUomsError {
 
     (
       status,
-      Json(ErrorResponse {
-        ok: false,
-        code,
-        source: Some("list_paginated_uoms_query".to_string()),
-      }),
+      error(code, Some("list_paginated_uoms_query".to_string())),
     )
       .into_response()
   }
 }
 
 #[derive(Debug, Serialize)]
-pub struct ListUomsResponse {
+pub struct ListUomsQueryOutput {
   pub data: Vec<UomDTO>,
   pub meta: PaginationMeta,
 }
 
 // Implement the Query trait for ListUomsQuery.
 impl Query for ListUomsQuery {
-  type Output = ListUomsResponse; // Return the user as output.
+  type Output = ListUomsQueryOutput; // Return the user as output.
   type Error = ListUomsError;
 }
 
@@ -66,7 +60,7 @@ pub struct ListUomsQueryHandler {
 
 #[async_trait]
 impl QueryHandler<ListUomsQuery> for ListUomsQueryHandler {
-  async fn handle(&self, query: ListUomsQuery) -> Result<ListUomsResponse, ListUomsError> {
+  async fn handle(&self, query: ListUomsQuery) -> Result<ListUomsQueryOutput, ListUomsError> {
     let per_page = query.per_page.unwrap_or(30);
     let page = query.page.unwrap_or(1) - 1;
 
@@ -81,7 +75,7 @@ impl QueryHandler<ListUomsQuery> for ListUomsQueryHandler {
     let total = items_and_pages.number_of_items;
     let total_pages = items_and_pages.number_of_pages;
 
-    Ok(ListUomsResponse {
+    Ok(ListUomsQueryOutput {
       data: uoms,
       meta: PaginationMeta {
         page: page + 1,

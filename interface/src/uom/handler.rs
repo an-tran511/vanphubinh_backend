@@ -4,8 +4,7 @@ use axum::{
   response::IntoResponse,
   Json,
 };
-use infra::{state::AppState, util::ok, uuid::Uuid};
-use serde_json::json;
+use infra::{state::AppState, uuid::Uuid};
 use service::{
   create_uom_command::{CreateUomCommand, CreateUomError},
   find_uom_by_id_query::{FindUomByIdError, FindUomByIdQuery},
@@ -32,8 +31,8 @@ pub async fn create_uom(
   Json(payload): Json<CreateUomCommand>,
 ) -> Result<impl IntoResponse, CreateUomError> {
   let command = CreateUomCommand { name: payload.name };
-  let uom = state.command_bus.dispatch(command).await?;
-  Ok((StatusCode::CREATED, Json(json!({ "id": uom.id }))))
+  let meta = state.command_bus.dispatch(command).await?;
+  Ok((StatusCode::CREATED, Json(meta)))
 }
 
 pub async fn find_uom_by_id(
@@ -55,7 +54,7 @@ pub async fn update_uom(
     name: payload.name,
   };
   match state.command_bus.dispatch(command).await {
-    Ok(_) => Ok((StatusCode::OK, ok())),
+    Ok(meta) => Ok((StatusCode::OK, Json(meta))),
     Err(e) => Err(e),
   }
 }

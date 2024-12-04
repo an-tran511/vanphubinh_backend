@@ -2,14 +2,14 @@ use std::sync::Arc;
 
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use axum::Json;
 use discern::async_trait;
 use discern::command::Command;
 use discern::command::CommandHandler;
-use domain::uom::{ActiveModel as Uom, Model as UomDTO};
-use infra::response::ErrorResponse;
+use domain::uom::ActiveModel as Uom;
+use infra::util::error;
+use infra::uuid::Uuid;
 use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr, Set};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 #[derive(Debug, Deserialize)]
@@ -31,20 +31,17 @@ impl IntoResponse for CreateUomError {
       }
     };
 
-    (
-      status,
-      Json(ErrorResponse {
-        ok: false,
-        code,
-        source: Some("create_uom_command".to_string()),
-      }),
-    )
-      .into_response()
+    (status, error(code, Some("create_uom_command".to_string()))).into_response()
   }
 }
 
+#[derive(Debug, Serialize)]
+pub struct CreateUomMeta {
+  pub id: Uuid,
+}
+
 impl Command for CreateUomCommand {
-  type Metadata = UomDTO;
+  type Metadata = CreateUomMeta;
   type Error = CreateUomError;
 }
 
@@ -54,7 +51,7 @@ pub struct CreateUomCommandHandler {
 
 #[async_trait]
 impl CommandHandler<CreateUomCommand> for CreateUomCommandHandler {
-  async fn handle(&self, command: CreateUomCommand) -> Result<UomDTO, CreateUomError> {
+  async fn handle(&self, command: CreateUomCommand) -> Result<CreateUomMeta, CreateUomError> {
     let uom = Uom {
       name: Set(command.name.to_owned()),
       ..Default::default()
@@ -64,6 +61,6 @@ impl CommandHandler<CreateUomCommand> for CreateUomCommandHandler {
       Err(error) => return Err(CreateUomError::InternalServerError(error)),
     };
 
-    Ok(uom)
+    Ok(CreateUomMeta { id: uom.id })
   }
 }

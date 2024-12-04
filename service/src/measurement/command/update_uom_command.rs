@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use discern::async_trait;
@@ -10,13 +8,19 @@ use infra::util::error;
 use infra::uuid::Uuid;
 use sea_orm::ActiveValue::NotSet;
 use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr, Set};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use thiserror::Error;
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateUomCommand {
   pub id: Uuid,
   pub name: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct UpdateUomMeta {
+  pub id: Uuid,
 }
 
 #[derive(Debug, Error)]
@@ -42,7 +46,7 @@ impl IntoResponse for UpdateUomError {
 }
 
 impl Command for UpdateUomCommand {
-  type Metadata = ();
+  type Metadata = UpdateUomMeta;
   type Error = UpdateUomError;
 }
 
@@ -52,14 +56,14 @@ pub struct UpdateUomCommandHandler {
 
 #[async_trait]
 impl CommandHandler<UpdateUomCommand> for UpdateUomCommandHandler {
-  async fn handle(&self, command: UpdateUomCommand) -> Result<(), UpdateUomError> {
+  async fn handle(&self, command: UpdateUomCommand) -> Result<UpdateUomMeta, UpdateUomError> {
     let uom = uom::ActiveModel {
       id: Set(command.id),
       name: Set(command.name),
       created_at: NotSet,
       updated_at: NotSet,
     };
-    uom.update(self.db.as_ref()).await?;
-    Ok(())
+    let updated_uom = uom.update(self.db.as_ref()).await?;
+    Ok(UpdateUomMeta { id: updated_uom.id })
   }
 }
