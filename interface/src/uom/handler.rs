@@ -1,14 +1,16 @@
 use axum::{
-  extract::{Query, State},
+  extract::{Path, Query, State},
   http::StatusCode,
   response::IntoResponse,
   Json,
 };
-use axum_macros::debug_handler;
-use infra::state::AppState;
+use infra::{state::AppState, util::ok, uuid::Uuid};
+use serde_json::json;
 use service::{
   create_uom_command::{CreateUomCommand, CreateUomError},
+  find_uom_by_id_query::{FindUomByIdError, FindUomByIdQuery},
   list_paginated_uoms_query::{ListUomsError, ListUomsQuery},
+  update_uom_command::{UpdateUomCommand, UpdateUomError},
 };
 use std::sync::Arc;
 
@@ -25,12 +27,35 @@ pub async fn list_paginated_uoms(
   Ok((StatusCode::OK, Json(uoms)))
 }
 
-#[debug_handler]
 pub async fn create_uom(
   State(state): State<Arc<AppState>>,
   Json(payload): Json<CreateUomCommand>,
 ) -> Result<impl IntoResponse, CreateUomError> {
   let command = CreateUomCommand { name: payload.name };
   let uom = state.command_bus.dispatch(command).await?;
-  Ok((StatusCode::CREATED, Json(uom)))
+  Ok((StatusCode::CREATED, Json(json!({ "id": uom.id }))))
+}
+
+pub async fn find_uom_by_id(
+  State(state): State<Arc<AppState>>,
+  Path(id): Path<Uuid>,
+) -> Result<impl IntoResponse, FindUomByIdError> {
+  let query = FindUomByIdQuery { id };
+  let uom = state.query_bus.dispatch(query).await?;
+  Ok((StatusCode::OK, Json(uom)))
+}
+
+pub async fn update_uom(
+  State(state): State<Arc<AppState>>,
+  Path(id): Path<Uuid>,
+  Json(payload): Json<UpdateUomCommand>,
+) -> Result<impl IntoResponse, UpdateUomError> {
+  let command = UpdateUomCommand {
+    id,
+    name: payload.name,
+  };
+  match state.command_bus.dispatch(command).await {
+    Ok(_) => Ok((StatusCode::OK, ok())),
+    Err(e) => Err(e),
+  }
 }

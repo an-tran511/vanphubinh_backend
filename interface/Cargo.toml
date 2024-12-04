@@ -9,6 +9,8 @@ axum = { workspace = true }
 axum-macros = { workspace = true }
 discern = { workspace = true }
 sea-orm = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
 thiserror = { workspace = true }
 
 infra = { path = "../infra" }

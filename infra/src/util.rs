@@ -1,3 +1,4 @@
+use crate::response::{ErrorResponse, OkResponse};
 use axum::{response::IntoResponse, response::Response, Json};
 use serde::Serialize;
 
@@ -24,4 +25,17 @@ where
   fn into_response(self) -> Response {
     Json(self).into_response()
   }
+}
+
+pub fn ok() -> impl IntoResponse {
+  Json(OkResponse { ok: true }).into_response()
+}
+
+pub fn error(code: String, source: Option<String>) -> impl IntoResponse {
+  Json(ErrorResponse {
+    ok: false,
+    code,
+    source,
+  })
+  .into_response()
 }

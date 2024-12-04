@@ -3,7 +3,10 @@
 use async_trait::async_trait;
 use chrono::Utc;
 use infra::uuid::Uuid;
-use sea_orm::{entity::prelude::*, DerivePartialModel, FromQueryResult, Set};
+use sea_orm::{
+  entity::prelude::*, ActiveModelTrait, DeriveActiveModelBehavior, DerivePartialModel,
+  FromQueryResult, Set,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]

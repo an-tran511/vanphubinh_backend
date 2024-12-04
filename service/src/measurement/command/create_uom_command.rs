@@ -7,7 +7,7 @@ use discern::async_trait;
 use discern::command::Command;
 use discern::command::CommandHandler;
 use domain::uom::{ActiveModel as Uom, Model as UomDTO};
-use infra::error::ErrorResponse;
+use infra::response::ErrorResponse;
 use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr, Set};
 use serde::Deserialize;
 use thiserror::Error;

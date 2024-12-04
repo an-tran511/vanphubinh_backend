@@ -8,7 +8,7 @@ use discern::query::Query;
 use discern::query::QueryHandler;
 use domain::uom::UomDTO;
 use domain::uom::{Column, Entity as Uom};
-use infra::error::ErrorResponse;
+use infra::response::ErrorResponse;
 use infra::util::PaginationMeta;
 use sea_orm::{DatabaseConnection, DbErr, EntityTrait, PaginatorTrait, QuerySelect};
 use serde::{Deserialize, Serialize};

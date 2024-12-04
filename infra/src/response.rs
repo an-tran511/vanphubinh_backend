@@ -6,3 +6,8 @@ pub struct ErrorResponse {
   pub code: String,
   pub source: Option<String>,
 }
+
+#[derive(Serialize)]
+pub struct OkResponse {
+  pub ok: bool,
+}

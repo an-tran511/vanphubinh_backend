@@ -1,5 +1,5 @@
 pub mod database;
-pub mod error;
+pub mod response;
 pub mod state;
 pub mod util;
 pub mod uuid;

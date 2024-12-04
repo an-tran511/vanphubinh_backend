@@ -1515,6 +1515,8 @@ dependencies = [
  "discern",
  "infra",
  "sea-orm",
+ "serde",
+ "serde_json",
  "service",
  "thiserror 2.0.3",
 ]
