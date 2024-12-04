@@ -2,14 +2,14 @@ use std::sync::Arc;
 
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use axum::Json;
 use discern::async_trait;
 use discern::command::Command;
 use discern::command::CommandHandler;
-use domain::uom::{self, Entity as Uom};
-use infra::util::{error, ok};
+use domain::uom;
+use infra::util::error;
 use infra::uuid::Uuid;
-use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr, EntityTrait, Set};
+use sea_orm::ActiveValue::NotSet;
+use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr, Set};
 use serde::Deserialize;
 use thiserror::Error;
 
@@ -53,9 +53,12 @@ pub struct UpdateUomCommandHandler {
 #[async_trait]
 impl CommandHandler<UpdateUomCommand> for UpdateUomCommandHandler {
   async fn handle(&self, command: UpdateUomCommand) -> Result<(), UpdateUomError> {
-    let uom = Uom::find_by_id(command.id).one(self.db.as_ref()).await?;
-    let mut uom: uom::ActiveModel = uom.unwrap().into();
-    uom.name = Set(command.name);
+    let uom = uom::ActiveModel {
+      id: Set(command.id),
+      name: Set(command.name),
+      created_at: NotSet,
+      updated_at: NotSet,
+    };
     uom.update(self.db.as_ref()).await?;
     Ok(())
   }
